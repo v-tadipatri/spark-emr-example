@@ -1,5 +1,9 @@
 *.class
 *.log
+.install
+user_conf.sh
+group_policy.json
+downloads
 
 # sbt specific
 .cache

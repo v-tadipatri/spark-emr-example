@@ -19,7 +19,9 @@ object SparkWordCountApp extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
     // read arguments and configuration
-    val Array(infile, outfile) = args
+    //val Array(infile, outfile) = args
+    val infile = args(0)
+    val outfile = args(1)
     logger.info("XXXX: Start of Spark EMR Example App")
     implicit val appSettings = ConfigUtils.loadAppConfig[SparkAppSettings]("com.example.spark-word-count-app")
     logger.info(s"settings: $appSettings")
@@ -53,13 +55,19 @@ object SparkWordCountApp extends LazyLogging {
 
     // read input as dataset
     val lines = spark.read.textFile(infile)
+    println("==data")
+    lines.show(10)
 
     // process data
     val counts = lines
-      .flatMap(_.split(" "))
-      .map(word => (word, 1))
+      .flatMap(_.split("[ \t]"))
+      .map(word => (word.toLowerCase, 1))
       .groupByKey(_._1)
       .count
+    val colset = counts.columns.filter(_.startsWith("count"))
+    val counts_renamed = counts.withColumnRenamed(colset(0), "count")
+    println("==output")
+    counts_renamed.show()
 
     // write output
     counts
