@@ -70,7 +70,7 @@ object SparkWordCountApp extends LazyLogging {
     counts_renamed.show()
 
     // write output
-    counts
+    counts_renamed
       .coalesce(1)
       .write
       .mode(SaveMode.Overwrite)
