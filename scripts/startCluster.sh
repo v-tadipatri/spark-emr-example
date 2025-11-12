@@ -1,5 +1,6 @@
 #!/bin/bash
 init=0
+source user_conf.sh
 if [ "$init" = "1" ]
 then
 	#should only do this once
@@ -17,4 +18,4 @@ aws emr create-cluster \
   --instance-type c4.large \
   --instance-count 1 \
   --use-default-roles \
-  --log-uri s3://my-bucket/emr-logs/
+  --log-uri s3://$BUCKET/emr-logs/
