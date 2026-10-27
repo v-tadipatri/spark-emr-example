@@ -3,7 +3,9 @@
 .install
 user_conf.sh
 group_policy.json
-downloads
+scripts/downloads
+scripts/uploads
+scripts/temp
 
 # sbt specific
 .cache
