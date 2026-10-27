@@ -1,4 +1,7 @@
 #!/bin/bash
+###
+# This script is used to set up a role for EMR serverless
+###
 bucket=${1?Enter bucket}
 role_name="MyEMRServerlessExecRole"
 echo "create role..."

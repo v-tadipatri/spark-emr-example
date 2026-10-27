@@ -18,18 +18,22 @@ Inside the s3 bucket, create folders for input, output, and athena
 Go to [https://us-east-1.console.aws.amazon.com/emr/home?region=us-east-1#/serverless](https://us-east-1.console.aws.amazon.com/emr/home?region=us-east-1#/serverless) - make sure it is EMR serverless, NOT the EC2 cluster.
 Click Manage application which takes you to another URL
 Create an application, where you can do batch job runs. Note the application id, as you will use this in multiple places
-Click "submit batch job run" and create a runtime role. You can continue to do a manual batch job run, but using the script is easier.
+Click "submit batch job run" and create a runtime role. You can continue to do a manual batch job run, or clone an existing job.
+
+Choose these custom options
+
+- Application limits : for example, 40 CPU, 300 GB max memory, and 200 GB disk space
+- Application logs and metrics : check "Deliver logs to Amazon Cloudwatch"
+
+Other defaults are ok.
 
 ## Set up IAM roles
 
-You need to create the iam user, group and permissions here: [https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/groups](https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/groups)
-Make sure you select  'AmazonEMRFullAccessPolicy_v2' and 'AmazonS3FullAccess'. 
-Also, click 'Add permissions'->new inline policy. Click json. See the `tpl/example_group_policy.json` and paste that value in.
-You'll have to replace the values for the EMR (not your user) role. You can find the role here: [https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/roles](https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/roles), the app id for your EMR app and your account id
+Your application needs to assume a role, which has permissions to access certain AWS resources
+The EMR Serverless role is set up with S3 and Cloudwatch access
 
 ## Transfer files
 Now that you have everything set up in AWS, you're ready to transfer files and start running.
-First, update the user_conf.sh with the app_id, emr_role_id and bucket
 You can run the s3copy.sh to copy the files that you have built (like the jar and the input file for your app) to your s3 bucket:
 ```
 BUCKET=your-bucket
@@ -38,14 +42,18 @@ BUCKET=your-bucket
 ./s3copy.sh ../target/scala-2.12/spark-emr-example.jar s3://$BUCKET/
 ```
 
-## Run the emr job
-Now that the jar and the data is in S3, and the app has the permissions it needs, you can run it
-```
-./runEmr.sh
-```
-If the permissions are ok, you can watch your job go from pending -> scheduled -> running -> success
-View logs if there are any failures. Otherwise, your data should show up in the output folder in your S3 bucket
 
+## Cloudwatch logs
+
+Go to [https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups](https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups)
+Create a new log group called `/aws/emr-serverless`
+This is where you can go to view and filter logs that are produced.
+
+## Run the emr job
+
+Make sure you pick the newly created role when running
+Specify the arguments to your spark app and the main class, as well as the S3 location of the jar.
+The other settings should be fine.
 
 ## Viewing the data
 You can download the data and view it with duckdb
