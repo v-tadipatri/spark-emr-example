@@ -16,6 +16,8 @@ Inside the s3 bucket, create folders for input, output, and athena
 ## Create EMR app
 
 Go to [https://us-east-1.console.aws.amazon.com/emr/home?region=us-east-1#/serverless](https://us-east-1.console.aws.amazon.com/emr/home?region=us-east-1#/serverless) - make sure it is EMR serverless, NOT the EC2 cluster.
+Pick EMR Studio (not Sagemaker), and make sure it's serverless (not EC2 or EKS)
+
 Click Manage application which takes you to another URL
 Create an application, where you can do batch job runs. Note the application id, as you will use this in multiple places
 Click "submit batch job run" and create a runtime role. You can continue to do a manual batch job run, or clone an existing job.
@@ -31,6 +33,14 @@ Other defaults are ok.
 
 Your application needs to assume a role, which has permissions to access certain AWS resources
 The EMR Serverless role is set up with S3 and Cloudwatch access
+The script below will create a role and set up the policy for it.
+If your bucket in s3 is called s3://my-bucket-name , run this:
+
+
+```
+./initPermissions.sh my-bucket-name
+
+```
 
 ## Transfer files
 Now that you have everything set up in AWS, you're ready to transfer files and start running.
@@ -49,11 +59,14 @@ Go to [https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1
 Create a new log group called `/aws/emr-serverless`
 This is where you can go to view and filter logs that are produced.
 
-## Run the emr job
+## Run the emr serverless job
+
+The first time, you'll have to create a batch job. Then you can click the checkbox , "Manage Jobs" and clone it.
 
 Make sure you pick the newly created role when running
 Specify the arguments to your spark app and the main class, as well as the S3 location of the jar.
 The other settings should be fine.
+
 
 ## Viewing the data
 You can download the data and view it with duckdb
